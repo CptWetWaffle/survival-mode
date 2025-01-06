@@ -28,6 +28,7 @@ public class SurvivalModePlugin extends Plugin
 	protected void startUp() throws Exception
 	{
 		log.info("Example started!");
+		client.getLocalPlayer().getId()
 	}
 
 	@Override
