@@ -1,13 +1,13 @@
-package com.example;
+package com.survivalMode;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class ExamplePluginTest
+public class SurvivalModePluginTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(ExamplePlugin.class);
+		ExternalPluginManager.loadBuiltin(SurvivalModePlugin.class);
 		RuneLite.main(args);
 	}
 }
