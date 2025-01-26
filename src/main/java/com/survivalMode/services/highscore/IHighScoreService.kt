@@ -1,7 +1,10 @@
 package com.survivalMode.services.highscore
 
-import com.survivalMode.services.highscore.models.Score
+import com.survivalMode.models.Account
+import com.survivalMode.models.GameMode
 
 interface IHighScoreService {
-    fun Put(score: Score?)
+    fun putAsync(account: Account)
+    fun getAsync(username: String)
+    fun getManyAsync(page: Int, gameMode: GameMode)
 }

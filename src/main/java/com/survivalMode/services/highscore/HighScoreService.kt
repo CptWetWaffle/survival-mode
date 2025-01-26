@@ -1,9 +1,18 @@
 package com.survivalMode.services.highscore
 
-import com.survivalMode.services.highscore.models.Score
+import com.survivalMode.models.Account
+import com.survivalMode.models.GameMode
 
 class HighScoreService : IHighScoreService {
-    override fun Put(score: Score?) {
+    override fun putAsync(account: Account) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAsync(username: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getManyAsync(page: Int, gameMode: GameMode) {
         TODO("Not yet implemented")
     }
 }
