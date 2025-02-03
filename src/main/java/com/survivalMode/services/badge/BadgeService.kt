@@ -8,7 +8,7 @@ class BadgeService : IBadgeService {
     override fun getBadge(gameMode: GameMode) : BufferedImage {
         val prefix: String =
             when(gameMode) {
-                GameMode.Regular     -> "r"
+                GameMode.Regular     -> "rg"
                 GameMode.Hardcore    -> "hc"
                 GameMode.Apocalyptic -> "ap"
             }

@@ -29,6 +29,9 @@ dependencies {
     compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
 
     implementation 'org.postgresql:postgresql:42.7.2'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '2.1.0' // Kotlin standard library
+    implementation group: 'net.runelite', name: 'skybox', version: runeLiteVersion // Add the plugin as a dependency
+
 
     testImplementation 'junit:junit:4.13.1'
     testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
@@ -50,8 +53,8 @@ tasks.register('shadowJar', Jar) {
     from sourceSets.main.output
     from sourceSets.test.output
     from {
-        configurations.testRuntimeClasspath.collect { file ->
-            file.isDirectory() ? file : zipTree(file)
+        configurations.testRuntimeClasspath.collect {
+            file -> file.isDirectory() ? file : zipTree(file)
         }
     }
 
