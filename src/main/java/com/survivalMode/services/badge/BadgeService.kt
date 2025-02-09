@@ -6,11 +6,11 @@ import java.awt.image.BufferedImage
 
 class BadgeService : IBadgeService {
     override fun getBadge(gameMode: GameMode) : BufferedImage {
-        val prefix: String =
+        /*val prefix: String =
             when(gameMode) {
                 GameMode.Regular     -> "rg"
                 GameMode.Hardcore    -> "hc"
-                GameMode.Apocalyptic -> "ap"
+                GameMode.Apocalyptic -> "ap",
             }
 
         val fullName: String =
@@ -19,6 +19,7 @@ class BadgeService : IBadgeService {
         return ImageUtil.loadImageResource(
             javaClass,
             "/resources/chat/$fullName"
-        )
+        )*/
+        TODO()
     }
 }
