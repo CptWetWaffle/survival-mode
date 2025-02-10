@@ -7,10 +7,11 @@ import java.time.Duration
 import java.time.LocalTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
+@Singleton
 class DailyCycleService @Inject internal constructor(
     private val client: Client,
-    private val overlay: BrightnessOverlay
 ): IDailyCycle {
     private val logger = LoggerFactory.getLogger(DailyCycleService::class.java)
     private val executor = Executors.newSingleThreadScheduledExecutor()
@@ -32,17 +33,14 @@ class DailyCycleService @Inject internal constructor(
             this == EARLY_NIGHT || this == MID_NIGHT || this == LATE_NIGHT
     }
 
-    private var currentTimeOfDay: TimeOfDay = TimeOfDay.EARLY_DAWN
-
-    val currentTime: TimeOfDay
-        get() = currentTimeOfDay
+    var currentTimeOfDay: TimeOfDay = TimeOfDay.EARLY_DAWN
 
     override fun start() {
         executor.scheduleAtFixedRate(
             /* command = */      this::updateDayNightCycle,
             /* initialDelay = */ 0,
             /* period = */       1,
-            /* unit = */         TimeUnit.MINUTES
+            /* unit = */         TimeUnit.SECONDS
         )
     }
 
@@ -94,17 +92,11 @@ class DailyCycleService @Inject internal constructor(
         currentTimeOfDay = timeOfDay
         client.skyboxColor = timeOfDay.colour
 
-        overlay.dayCycle =
-            if (timeOfDay.isNight())
-                BrightnessOverlay.Cycle.NIGHT
-            else
-                BrightnessOverlay.Cycle.DAY
-
         logger.info("setTimeOfDay $currentTimeOfDay")
     }
 
     companion object {
-        private val minute = Duration.ofMinutes(/* minutes = */ 1).toMillis()
+        private val minute = Duration.ofSeconds(/* minutes = */ 1).toMillis()
         fun Int.minutesMillis() = minute * this
     }
 }
