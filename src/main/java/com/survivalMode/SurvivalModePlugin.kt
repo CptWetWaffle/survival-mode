@@ -1,7 +1,7 @@
 package com.survivalMode
 
 import com.google.inject.Provides
-import com.survivalMode.services.dailycycle.DailyCycle
+import com.survivalMode.services.dailycycle.DailyCycleService
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ class SurvivalModePlugin : Plugin() {
     private lateinit var client: Client
 
     @Inject
-    private lateinit var dailyCycle: DailyCycle
+    private lateinit var dailyCycle: DailyCycleService
 
     @Throws(Exception::class)
     override fun startUp() {

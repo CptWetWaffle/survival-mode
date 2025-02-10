@@ -1,5 +1,6 @@
 package com.survivalMode.services.dailycycle
 
+import lombok.Setter
 import net.runelite.api.Client
 import net.runelite.client.ui.overlay.Overlay
 import net.runelite.client.ui.overlay.OverlayLayer
@@ -8,36 +9,31 @@ import java.awt.Dimension
 import java.awt.Graphics2D
 import javax.inject.Inject
 
-// Define your BrightnessOverlay class as an inner class or in a separate file
-@javax.inject.Singleton
-class BrightnessOverlay @Inject internal constructor(
-    private val config: BrightnessAdjustConfig // Inject your config (if you make brightness configurable)
-) : Overlay() {
-    @Inject
-    private lateinit var client: Client
+class BrightnessOverlay @Inject internal constructor(private val client: Client) : Overlay() {
 
-    init {
-        layer = OverlayLayer.ALWAYS_ON_TOP // Ensure it's always on top
+    init { layer = OverlayLayer.UNDER_WIDGETS }
+
+    @Setter
+    var dayCycle = Cycle.DAY;
+
+    enum class Cycle {
+        DAY,
+        NIGHT,
     }
 
     override fun render(graphics: Graphics2D): Dimension? {
         val gameCanvas = client.canvas ?: return null
 
-        val overlayColor = when {
-            config.brightnessLevel() > 0 -> { // Brighten
-                Color(255, 255, 255, (config.brightnessLevel() * 2.55f).toInt().coerceIn(0, 255)) // White overlay
-            }
-            config.brightnessLevel() < 0 -> { // Darken
-                Color(0, 0, 0, ((-config.brightnessLevel()) * 2.55f).toInt().coerceIn(0, 255)) // Black overlay
-            }
-            else -> null // No overlay if brightness level is 0
+        val overlayColor = when (dayCycle) {
+            Cycle.DAY   -> Color(0x00000000, true)
+            Cycle.NIGHT -> Color(0x00000066, true)
         }
 
-        overlayColor?.let { color ->
+        overlayColor.let { color ->
             graphics.color = color
             graphics.fillRect(0, 0, gameCanvas.width, gameCanvas.height)
         }
 
-        return null // Don't affect overlay dimension
+        return null
     }
 }

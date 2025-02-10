@@ -2,20 +2,18 @@ package com.survivalMode.services.dailycycle
 
 import javax.inject.Inject
 import net.runelite.api.Client
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.LocalTime
-import java.time.ZoneId
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class DayNightSkyboxService {
-    @Inject
-    private lateinit var client: Client
-    private val logger: Logger = LoggerFactory.getLogger(DayNightSkyboxService::class.java)
-    private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+class DailyCycleService @Inject internal constructor(
+    private val client: Client,
+    private val overlay: BrightnessOverlay
+): IDailyCycle {
+    private val logger = LoggerFactory.getLogger(DailyCycleService::class.java)
+    private val executor = Executors.newSingleThreadScheduledExecutor()
     private val totalCycleTicks = minute * 30
 
     enum class TimeOfDay(val colour: Int, val ticks: Long){
@@ -28,10 +26,18 @@ class DayNightSkyboxService {
         LATE_DUSK  (0x4B0082, 23.minutesMillis()),
         EARLY_NIGHT(0x000080, 24.minutesMillis()),
         MID_NIGHT  (0x000040, 29.minutesMillis()),
-        LATE_NIGHT (0x000080, 30.minutesMillis()),
+        LATE_NIGHT (0x000080, 30.minutesMillis());
+
+        fun isNight() =
+            this == EARLY_NIGHT || this == MID_NIGHT || this == LATE_NIGHT
     }
 
-    fun scheduleTimeBasedCycle() {
+    private var currentTimeOfDay: TimeOfDay = TimeOfDay.EARLY_DAWN
+
+    val currentTime: TimeOfDay
+        get() = currentTimeOfDay
+
+    override fun start() {
         executor.scheduleAtFixedRate(
             /* command = */      this::updateDayNightCycle,
             /* initialDelay = */ 0,
@@ -50,35 +56,51 @@ class DayNightSkyboxService {
 
         when {
             cyclePositionTicks < TimeOfDay.EARLY_DAWN.ticks ->
-                client.skyboxColor = TimeOfDay.EARLY_DAWN.colour
+                setTimeOfDay(TimeOfDay.EARLY_DAWN)
 
             cyclePositionTicks < TimeOfDay.MID_DAWN.ticks ->
-                client.skyboxColor = TimeOfDay.MID_DAWN.colour
+                setTimeOfDay(TimeOfDay.MID_DAWN)
 
             cyclePositionTicks < TimeOfDay.LATE_DAWN.ticks ->
-                client.skyboxColor = TimeOfDay.LATE_DAWN.colour
+                setTimeOfDay(TimeOfDay.LATE_DAWN)
 
             cyclePositionTicks < TimeOfDay.DAY.ticks ->
-                client.skyboxColor = TimeOfDay.DAY.colour
+                setTimeOfDay(TimeOfDay.DAY)
 
             cyclePositionTicks < TimeOfDay.EARLY_DUSK.ticks ->
-                client.skyboxColor = TimeOfDay.EARLY_DUSK.colour
+                setTimeOfDay(TimeOfDay.EARLY_DUSK)
 
             cyclePositionTicks < TimeOfDay.MID_DUSK.ticks ->
-                client.skyboxColor = TimeOfDay.MID_DUSK.colour
+                setTimeOfDay(TimeOfDay.MID_DUSK)
 
             cyclePositionTicks < TimeOfDay.LATE_DUSK.ticks ->
-                client.skyboxColor = TimeOfDay.LATE_DUSK.colour
+                setTimeOfDay(TimeOfDay.LATE_DUSK)
 
             cyclePositionTicks < TimeOfDay.EARLY_NIGHT.ticks ->
-                client.skyboxColor = TimeOfDay.EARLY_NIGHT.colour
+                setTimeOfDay(TimeOfDay.EARLY_NIGHT)
 
             cyclePositionTicks < TimeOfDay.MID_NIGHT.ticks ->
-                client.skyboxColor = TimeOfDay.MID_NIGHT.colour
+                setTimeOfDay(TimeOfDay.MID_NIGHT)
 
             else ->
-                client.skyboxColor = TimeOfDay.LATE_NIGHT.colour
+                setTimeOfDay(TimeOfDay.LATE_NIGHT)
         }
+    }
+
+    private fun setTimeOfDay(timeOfDay: TimeOfDay){
+        if (currentTimeOfDay == timeOfDay)
+            return
+
+        currentTimeOfDay = timeOfDay
+        client.skyboxColor = timeOfDay.colour
+
+        overlay.dayCycle =
+            if (timeOfDay.isNight())
+                BrightnessOverlay.Cycle.NIGHT
+            else
+                BrightnessOverlay.Cycle.DAY
+
+        logger.info("setTimeOfDay $currentTimeOfDay")
     }
 
     companion object {
