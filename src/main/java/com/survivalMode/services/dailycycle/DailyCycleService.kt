@@ -18,29 +18,32 @@ class DailyCycleService @Inject internal constructor(
     private val totalCycleTicks = minute * 30
 
     enum class TimeOfDay(val colour: Int, val ticks: Long){
-        EARLY_DAWN (0x4B0082,  1.minutesMillis()),
-        MID_DAWN   (0xFFDAB9,  2.minutesMillis()),
-        LATE_DAWN  (0xB8DDE8,  3.minutesMillis()),
+        EARLY_DAWN (0x000080,  1.minutesMillis()),
+        MID_DAWN   (0x35349B,  2.minutesMillis()),
+        LATE_DAWN  (0x6967B6,  3.minutesMillis()),
         DAY        (0x87CEEB, 20.minutesMillis()),
-        EARLY_DUSK (0xB8DDE8, 21.minutesMillis()),
-        MID_DUSK   (0xFFDAB9, 22.minutesMillis()),
-        LATE_DUSK  (0x4B0082, 23.minutesMillis()),
-        EARLY_NIGHT(0x000080, 24.minutesMillis()),
-        MID_NIGHT  (0x000040, 29.minutesMillis()),
-        LATE_NIGHT (0x000080, 30.minutesMillis());
+        EARLY_DUSK (0x6967B6, 21.minutesMillis()),
+        MID_DUSK   (0x35349B, 22.minutesMillis()),
+        LATE_DUSK  (0x000080, 23.minutesMillis()),
+        EARLY_NIGHT(0x000040, 24.minutesMillis()),
+        MID_NIGHT  (0x000030, 29.minutesMillis()),
+        LATE_NIGHT (0x000040, 30.minutesMillis());
 
         fun isNight() =
             this == EARLY_NIGHT || this == MID_NIGHT || this == LATE_NIGHT
+
+        fun isDarker() =
+            this == MID_DUSK || this == LATE_DUSK || this == EARLY_DAWN || this == MID_DAWN
     }
 
-    var currentTimeOfDay: TimeOfDay = TimeOfDay.EARLY_DAWN
+    private var currentTimeOfDay: TimeOfDay = TimeOfDay.EARLY_DAWN
 
     override fun start() {
         executor.scheduleAtFixedRate(
             /* command = */      this::updateDayNightCycle,
             /* initialDelay = */ 0,
             /* period = */       1,
-            /* unit = */         TimeUnit.SECONDS
+            /* unit = */         TimeUnit.MINUTES
         )
     }
 
@@ -95,8 +98,33 @@ class DailyCycleService @Inject internal constructor(
         logger.info("setTimeOfDay $currentTimeOfDay")
     }
 
+    private var currentDarkness : Int = 0;
+    fun getCurrentDarkness(): Int {
+        if (currentTimeOfDay.isDarker())
+            if (currentDarkness < DARKER_DARKNESS_LIMIT)
+                currentDarkness++
+            else
+                currentDarkness--
+        else if (currentTimeOfDay.isNight())
+            if (currentDarkness < NIGHT_DARKNESS_LIMIT)
+                currentDarkness++
+            else
+                currentDarkness--
+        else
+            if (currentDarkness > DAY_DARKNESS_LIMIT)
+                currentDarkness--
+
+        return currentDarkness / FRAME_DELAY
+    }
+
     companion object {
-        private val minute = Duration.ofSeconds(/* minutes = */ 1).toMillis()
+        private val minute = Duration.ofMinutes(/* minutes = */ 1).toMillis()
         fun Int.minutesMillis() = minute * this
+
+        const val FRAME_DELAY = 12
+
+        const val NIGHT_DARKNESS_LIMIT  = 69 * FRAME_DELAY;
+        const val DARKER_DARKNESS_LIMIT = 40 * FRAME_DELAY;
+        const val DAY_DARKNESS_LIMIT    = 0;
     }
 }
