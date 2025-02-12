@@ -7,20 +7,16 @@ import net.runelite.client.config.ConfigItem
 @ConfigGroup("general")
 interface SurvivalModeConfig : Config {
     @ConfigItem(
-        keyName = "greeting",
-        name = "Welcome Greeting",
-        description = "The message to show to the user when they login"
+        keyName = "disableDarknessOverlay",
+        name = "Darkness Overlay",
+        description = "The screen darkening on night time"
     )
-    fun greeting(): String {
-        return "Hello"
-    }
+    fun disableDarknessOverlay(): Boolean = false
 
     @ConfigItem(
         keyName = "testMode",
         name = "Test mode",
-        description = "Test the game mode on any account. Doesn't count towards leaderboards"
+        description = "Test the game mode on any account"
     )
-    fun testMode(): Boolean {
-        return false
-    }
+    fun testMode(): Boolean = false
 }
