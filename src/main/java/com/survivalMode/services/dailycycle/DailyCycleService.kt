@@ -98,7 +98,7 @@ class DailyCycleService @Inject internal constructor(
         logger.info("setTimeOfDay $currentTimeOfDay")
     }
 
-    private var currentDarkness : Int = 0;
+    private var currentDarkness : Int = 0
     fun getCurrentDarkness(): Int {
         if (currentTimeOfDay.isDarker())
             if (currentDarkness < DARKER_DARKNESS_LIMIT)
@@ -123,8 +123,8 @@ class DailyCycleService @Inject internal constructor(
 
         const val FRAME_DELAY = 12
 
-        const val NIGHT_DARKNESS_LIMIT  = 69 * FRAME_DELAY;
-        const val DARKER_DARKNESS_LIMIT = 40 * FRAME_DELAY;
-        const val DAY_DARKNESS_LIMIT    = 0;
+        const val NIGHT_DARKNESS_LIMIT  = (69 + 69) * FRAME_DELAY
+        const val DARKER_DARKNESS_LIMIT = 69 * FRAME_DELAY
+        const val DAY_DARKNESS_LIMIT    = 0
     }
 }
